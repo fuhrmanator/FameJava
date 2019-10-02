@@ -1,0 +1,185 @@
+%%% Package
+// automatically generated code, please do not change
+// package --PACKAGE--;
+
+--IMPORTS--
+
+export class --MODEL-- {
+
+    public static MetaRepository metamodel() {
+        MetaRepository metamodel = new MetaRepository();
+        importInto(metamodel);
+        return metamodel;
+    }
+    
+    public static void importInto(MetaRepository metamodel) {
+--ADDCLASSES--
+    }
+
+}
+
+%%% Package.Add
+        metamodel.getDescription(--PACKAGE--.--TYPE--.class);
+
+%%% Class
+// automatically generated code, please do not change
+
+import {FamixMseExporter} from "../../famix_mse_exporter";
+--IMPORTS--
+
+export class --THISTYPE-- --EXTENDS-- {
+
+--FIELDS--
+--METHODS--
+
+  public getMSE(): string {
+    const mse: FamixMseExporter = new FamixMseExporter("--THISPACKAGE--.--THISNAME--", this);
+    this.addPropertiesToExporter(mse);
+    return mse.getMSE();
+  }
+
+  public addPropertiesToExporter(exporter: FamixMseExporter) {
+    super.addPropertiesToExporter(exporter);
+--PROPERTIES--
+  }
+
+}
+
+%%% Import
+// import --IMPORT--;
+
+%%% One.Field
+  private --FIELD--: --TYPE--;
+
+%%% Many.Field
+  private --FIELD--: Set<--TYPE--> = new Set();
+
+%%% One.Getter
+  // @FameProperty(name = "--NAME--"--PROPS--)
+  public --GETTER--(): --TYPE-- {
+    return this.--FIELD--;
+  }
+
+%%% One.Derived.Getter
+  // @FameProperty(name = "--NAME--"--PROPS--)
+  public --TYPE-- --GETTER--() {
+    // TODO: this is a derived property, implement this method manually.
+    throw new Error('Not yet implemented');  
+  }
+
+%%% Many.Derived.Getter
+  // @FameProperty(name = "--NAME--"--PROPS--)
+  public Collection<--TYPE--> --GETTER--() {
+    // TODO: this is a derived property, implement this method manually.
+    throw new Error('Not yet implemented');   
+  }
+
+%%% One.Setter
+  public --SETTER--(--FIELD--: --TYPE--) {
+    this.--FIELD-- = --FIELD--;
+  }
+
+%%% Many.Getter
+  // @FameProperty(name = "--NAME--"--PROPS--)
+  // many.getter
+  public --GETTER--(): Set<--TYPE--> {
+    return this.--FIELD--;
+  }
+
+%%% Many.Setter
+  // many.Setter
+  public --ADDER--(--NEWFIELD--: --TYPE--) {
+    if (!this.--FIELD--.has(--NEWFIELD--)) {
+      this.--FIELD--.add(--NEWFIELD--);
+    }
+  }
+
+%%% ManyOne.Getter
+  // manyOne.Getter
+  // @FameProperty(name = "--NAME--", opposite = "--OPPOSITENAME--"--PROPS--)
+  public --GETTER--(): Set<--TYPE--> {
+    return this.--FIELD--;
+  }
+
+%%% ManyOne.Setter
+  // manyOne.Setter
+  public --ADDER--(--FIELD--: --TYPE--) {
+    if (!this.--FIELD--.has(--FIELD--)) {
+      this.--FIELD--.add(--FIELD--);
+      --FIELD--.--OPPOSITESETTER--(this);
+    }
+  }
+
+%%% OneMany.Getter
+  // oneMany.Getter
+  // @FameProperty(name = "--NAME--", opposite = "--OPPOSITENAME--"--PROPS--)
+  public --GETTER--(): --TYPE-- {
+    return this.--FIELD--;
+  }
+
+%%% OneMany.Setter
+  // oneMany.Setter
+  public --SETTER--(--NEWFIELD--: --TYPE--) {
+    this.--FIELD-- = --NEWFIELD--;
+    --NEWFIELD--.--OPPOSITEGETTER--().add(this);
+  }
+
+%%% OneOne.Getter
+  // @FameProperty(name = "--NAME--", opposite = "--OPPOSITENAME--"--PROPS--)
+  public --GETTER--(): --TYPE-- {
+    return this.--FIELD--;
+  }
+
+%%% OneOne.Setter
+  public --SETTER--(--NEWFIELD--: --TYPE--) {
+    if (this.--FIELD-- === undefined) {
+      this.--FIELD-- = --NEWFIELD--;
+      --NEWFIELD--.--OPPOSITESETTER--(this);
+    }
+  }
+
+%%% ManyMany.Getter
+  // manyMany.Getter
+  // @FameProperty(name = "--NAME--", opposite = "--OPPOSITENAME--"--PROPS--)
+  public --GETTER--(): Set<--TYPE--> {
+    return this.--FIELD--;
+  }
+
+%%% ManyMany.Setter
+  // manyMany.Setter
+  public --ADDER--(--NEWFIELD--: --TYPE--) {
+    if (!this.--FIELD--.has(--NEWFIELD--)) {
+      this.--FIELD--.add(--NEWFIELD--);
+      --NEWFIELD--.--OPPOSITEGETTER--().add(this);
+    }
+  }
+
+%%% Many.Sugar
+  // many.Sugar
+  public void --ADDER--(--TYPE-- one) {
+    this.--GETTER--().add(one);
+  }   
+
+  public void --ADDER--(--TYPE-- one, --TYPE--... many) {
+    this.--GETTER--().add(one);
+    for (--TYPE-- each : many)
+      this.--GETTER--().add(each);
+  }  
+
+  public void --ADDER--(Iterable<? extends --TYPE--> many) {
+    for (--TYPE-- each : many)
+      this.--GETTER--().add(each);
+  }
+
+  public void --ADDER--(--TYPE--[] many) {
+    for (--TYPE-- each : many)
+      this.--GETTER--().add(each);
+  }
+
+  public int --NUMOF--() {
+    return --GETTER--().size();
+  }
+
+  public boolean --HAS--() {
+    return !--GETTER--().isEmpty();
+  }

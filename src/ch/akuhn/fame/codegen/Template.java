@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Template {
+	
+	public static String templatename = "template_ts.txt";
 
     public static Template get(String key) {
         try {
@@ -38,7 +40,7 @@ public class Template {
     }
 
     public static Map<String, Template> getAllTemplates() throws IOException {
-        InputStream input = ClassLoader.getSystemResourceAsStream("ch/akuhn/fame/codegen/template.txt");
+        InputStream input = ClassLoader.getSystemResourceAsStream("ch/akuhn/fame/codegen/"+templatename);
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         Map<String, Template> map = new HashMap<String, Template>();
         String line = reader.readLine();

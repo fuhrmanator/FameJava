@@ -53,6 +53,7 @@ public class CodeGeneration {
     private String destinationPackage = "com.example";
     private String outputDirectory = "gen";
     private String classNamePrefix = "";
+    private String filenameExt = ".ts";
     private JavaFile code;
     private File folder;
 
@@ -90,34 +91,42 @@ public class CodeGeneration {
     }
 
     private Void acceptAccessorProperty(PropertyDescription m) {
-        code.addImport(FameProperty.class);
+        //code.addImport(FameProperty.class);
         String typeName = "Object";
         if (m.getType() != null) { // TODO should not have null type
-            typeName = className(m.getType());
-            code.addImport(this.packageName(m.getType().getPackage()), typeName);
+        	typeName = className(m.getType());
+        	if (!m.getOwningMetaDescription().getName().equals(typeName)) {
+        		code.addImport(this.packageName(m.getType().getPackage()), typeName);
+        	}
         }
         if (m.isMultivalued()) {
             code.addImport("java.util", "*");
         }
         String myName = CodeGeneration.asJavaSafeName(m.getName());
+        String myNameUpperCase = Character.toUpperCase(myName.charAt(0)) + myName.substring(1);
+        String classname = m.getOwningMetaDescription().getName();
+        String classnameLowerCase = Character.toLowerCase(classname.charAt(0)) + classname.substring(1);
 
         String base = m.isMultivalued() ? "Many" : "One";
         Template field = Template.get(base + ".Field");
         if (m.getOpposite() != null) {
             base = base + (m.getOpposite().isMultivalued() ? "Many" : "One");
-            if (base.equals("ManyOne") || base.equals("ManyMany")) {
-                code.addImport(MultivalueSet.class);
-            }
+   
         }
         Template getter = Template.get(base + ".Getter");
         Template setter = Template.get(base + ".Setter");
 
         field.set("TYPE", typeName);
         field.set("THISTYPE", CodeGeneration.asJavaSafeName(className(m.getOwningMetaDescription())));
-        field.set("FIELD", myName);
+        field.set("FIELD", classnameLowerCase + myNameUpperCase);
+        field.set("NEWFIELD", "new" + myNameUpperCase);
         field.set("NAME", m.getName());
-        field.set("GETTER", "get" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
-        field.set("SETTER", "set" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
+        field.set("GETTER", "get" + myNameUpperCase);
+        field.set("SETTER", "set" + myNameUpperCase);
+        field.set("ADDER", "add" + myNameUpperCase);
+        
+        code.addProperty(m.getName(), "get" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
+        
         if (m.getOpposite() != null) {
             String oppositeName = m.getOpposite().getName();
             field.set("OPPOSITENAME", oppositeName);
@@ -146,7 +155,7 @@ public class CodeGeneration {
 
         if (!m.isMultivalued())
             return null;
-
+/*
         Template adder = Template.get("Many.Sugar");
         adder.set("TYPE", typeName);
         adder.set("FIELD", myName);
@@ -154,7 +163,7 @@ public class CodeGeneration {
         adder.set("ADDER", "add" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
         adder.set("NUMOF", "numberOf" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
         adder.set("HAS", "has" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
-        stream.append(adder.apply());
+        stream.append(adder.apply()); */
         return null;
 
     }
@@ -199,8 +208,8 @@ public class CodeGeneration {
         code = new JavaFile(this.packageName(m.getPackage()), className(m));
         code.setModelPackagename(m.getPackage().getFullname());
         code.setModelClassname(m.getName());
-        code.addImport(FameDescription.class);
-        code.addImport(FamePackage.class);
+        //code.addImport(FameDescription.class);
+        //code.addImport(FamePackage.class);
 
         if (m.getSuperclass() != null) {
             code.addSuperclass(this.packageName(m.getSuperclass().getPackage()), className(m.getSuperclass()));
@@ -209,7 +218,7 @@ public class CodeGeneration {
         for (PropertyDescription property : m.getAttributes()) {
             this.acceptProperty(property);
         }
-        File file = new File(folder, className(m) + ".java");
+        File file = new File(folder, JavaFile.convertToFilename(className(m)) + filenameExt);
         FileWriter stream = new FileWriter(file);
         code.generateCode(stream);
         stream.close();
@@ -224,27 +233,27 @@ public class CodeGeneration {
             this.acceptClass(meta);
         }
 
-        String name = toUpperFirstChar(m.getName()) + "Model";
-        Template template = Template.get("Package");
-        String packageName = this.packageName(m);
-        template.set("PACKAGE", packageName);
-        template.set("MODEL", name);
-        template.set("AUTOGENCODE", "Automagically generated code");
-
-        StringBuilder builder = new StringBuilder();
-        for (MetaDescription meta : m.getClasses()) {
-            builder.append("\t\tmetamodel.with(");
-            builder.append(packageName);
-            builder.append('.');
-            builder.append(className(meta));
-            builder.append(".class);\n");
-        }
-        template.set("ADDCLASSES", builder.toString());
-
-        File file = new File(folder, name + ".java");
-        FileWriter stream = new FileWriter(file);
-        stream.append(template.apply());
-        stream.close();
+//        String name = toUpperFirstChar(m.getName()) + "Model";
+//        Template template = Template.get("Package");
+//        String packageName = this.packageName(m);
+//        template.set("PACKAGE", packageName);
+//        template.set("MODEL", name);
+//        template.set("AUTOGENCODE", "Automagically generated code");
+//
+//        StringBuilder builder = new StringBuilder();
+//        for (MetaDescription meta : m.getClasses()) {
+//            builder.append("\t\tmetamodel.with(");
+//            builder.append(packageName);
+//            builder.append('.');
+//            builder.append(className(meta));
+//            builder.append(".class);\n");
+//        }
+//        template.set("ADDCLASSES", builder.toString());
+//
+//        File file = new File(folder, name + filenameExt);
+//        FileWriter stream = new FileWriter(file);
+//        stream.append(template.apply());
+//        stream.close();
 
         folder = null;
     }
@@ -279,6 +288,10 @@ public class CodeGeneration {
     private String packageName(PackageDescription m) {
         if (m == null)
             return "java.lang";
+        
+        if (destinationPackage.equals(""))
+        	return mapPackageName(m.getName());
+        
         return destinationPackage() + "." + mapPackageName(m.getName());
     }
 

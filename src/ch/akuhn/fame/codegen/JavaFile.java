@@ -20,12 +20,16 @@ package ch.akuhn.fame.codegen;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class JavaFile {
 
     private StringBuilder body;
-    private Collection<String> imports;
+    private Map<String, String> imports;
+    private Map<String, String> properties;
     private String myPackage;
     private String name;
     private String superName;
@@ -36,7 +40,8 @@ public class JavaFile {
         this.myPackage = myPackage;
         this.name = name;
         this.body = new StringBuilder();
-        this.imports = new HashSet();
+        this.imports = new HashMap();
+        this.properties = new HashMap();
     }
 
     public <T> void addImport(Class<T> tee) {
@@ -44,13 +49,47 @@ public class JavaFile {
     }
 
     public void addImport(String aPackage, String className) {
-        if (aPackage.equals(myPackage)) return;
+        //if (aPackage.equals(myPackage)) return;
         if (aPackage.equals("java.lang")) return;
-        imports.add(aPackage + "." + className);
+        if (aPackage.equals("java.util")) return;
+        imports.put(className, "../"+aPackage + "/" + convertToFilename(className));
     }
+    
+    public static String convertToFilename(String classname) {
+      StringBuffer buffer = new StringBuffer();
+    	
+      for (int i = 0; i < classname.length(); i++) {
+    	Character c = new Character(classname.charAt(i));
+    	if(Character.isUpperCase(c)) {
+    		if (i>0) {
+    			buffer.append("_");
+    		}
+    		buffer.append(Character.toLowerCase(c));
+    	} else {
+    		buffer.append(c);
+    	}
+      }	
+      return buffer.toString();
+    }
+    
+    public void addProperty(String name, String getter) {
+    	properties.put(name, getter);
+    }
+    
+    public String getProperties() {
+    	StringBuilder stream = new StringBuilder();
+    	for ( Entry<String, String> each: properties.entrySet()) {
+    		stream.append("    exporter.addProperty(\""+each.getKey()+"\", this."+each.getValue()+"());\n");
+    	}
+    	return stream.toString();
+    }
+    
 
     public void addSuperclass(String aPackage, String className) {
-        if (className.equals("Object") && aPackage.equals("java.lang")) return;
+        if (className.equals("Object") && aPackage.equals("java.lang")) {
+        	aPackage="..";
+        	className="FamixBaseElement";
+        }
         this.addImport(aPackage, className);
         this.superName = className;
     }
@@ -67,6 +106,7 @@ public class JavaFile {
         template.set("IMPORTS", getImports());
         template.set("FIELDS", "");
         template.set("METHODS", getContentStream().toString());
+        template.set("PROPERTIES", getProperties());
         stream.append(template.apply());
     }
 
@@ -76,8 +116,8 @@ public class JavaFile {
 
     public String getImports() {
         StringBuilder stream = new StringBuilder();
-        for (String each : imports) {
-            stream.append("import ").append(each).append(";\n");
+        for (Entry<String, String> each : imports.entrySet()) {
+            stream.append("import {").append(each.getKey()).append("} from \"./").append(each.getValue()).append("\";\n");
         }
         return stream.toString();
     }
