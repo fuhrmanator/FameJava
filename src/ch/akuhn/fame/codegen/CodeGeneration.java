@@ -116,7 +116,7 @@ public class CodeGeneration {
         Template getter = Template.get(base + ".Getter");
         Template setter = Template.get(base + ".Setter");
 
-        field.set("TYPE", typeName);
+        field.set("TYPE", convertToTypescriptType(typeName));
         field.set("THISTYPE", CodeGeneration.asJavaSafeName(className(m.getOwningMetaDescription())));
         field.set("FIELD", classnameLowerCase + myNameUpperCase);
         field.set("NEWFIELD", "new" + myNameUpperCase);
@@ -233,29 +233,28 @@ public class CodeGeneration {
             this.acceptClass(meta);
         }
 
-//        String name = toUpperFirstChar(m.getName()) + "Model";
-//        Template template = Template.get("Package");
-//        String packageName = this.packageName(m);
-//        template.set("PACKAGE", packageName);
-//        template.set("MODEL", name);
-//        template.set("AUTOGENCODE", "Automagically generated code");
-//
-//        StringBuilder builder = new StringBuilder();
-//        for (MetaDescription meta : m.getClasses()) {
-//            builder.append("\t\tmetamodel.with(");
-//            builder.append(packageName);
-//            builder.append('.');
-//            builder.append(className(meta));
-//            builder.append(".class);\n");
-//        }
-//        template.set("ADDCLASSES", builder.toString());
-//
-//        File file = new File(folder, name + filenameExt);
-//        FileWriter stream = new FileWriter(file);
-//        stream.append(template.apply());
-//        stream.close();
+        Template template = Template.get("Package");
+        StringBuilder builder = new StringBuilder();
+        for (MetaDescription meta : m.getClasses()) {
+            builder.append("export {"+className(meta)+"} from \"./");
+            builder.append(JavaFile.convertToFilename(className(meta)));
+            builder.append("\";\n");
+        }
+        template.set("EXPORTS", builder.toString());
+
+        File file = new File(folder, "index" + filenameExt);
+        FileWriter stream = new FileWriter(file);
+        stream.append(template.apply());
+        stream.close();
 
         folder = null;
+    }
+    
+    private String convertToTypescriptType(String typename) {
+    	if (typename.equals("String")|| typename.equals("Boolean") || typename.equals("Number")) {
+    		return typename.toLowerCase();
+    	}
+    	return typename;
     }
 
     private Void acceptProperty(PropertyDescription m) throws IOException {

@@ -1,22 +1,7 @@
 %%% Package
 // automatically generated code, please do not change
-// package --PACKAGE--;
 
---IMPORTS--
-
-export class --MODEL-- {
-
-    public static MetaRepository metamodel() {
-        MetaRepository metamodel = new MetaRepository();
-        importInto(metamodel);
-        return metamodel;
-    }
-    
-    public static void importInto(MetaRepository metamodel) {
---ADDCLASSES--
-    }
-
-}
+--EXPORTS--
 
 %%% Package.Add
         metamodel.getDescription(--PACKAGE--.--TYPE--.class);
@@ -26,12 +11,9 @@ export class --MODEL-- {
 
 import {FamixMseExporter} from "../../famix_mse_exporter";
 --IMPORTS--
-
 export class --THISTYPE-- --EXTENDS-- {
-
 --FIELDS--
 --METHODS--
-
   public getMSE(): string {
     const mse: FamixMseExporter = new FamixMseExporter("--THISPACKAGE--.--THISNAME--", this);
     this.addPropertiesToExporter(mse);
